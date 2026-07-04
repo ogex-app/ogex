@@ -4,7 +4,7 @@
 
 ### A node-based engine for live graphics, audio, lighting, and interactive media on macOS.
 
-[**Download for macOS (0.2.1)**](https://get.ogex.app/OGEX-0.2.1.dmg) · [Features](https://ogex.app/features)
+[**Download for macOS (0.2.4)**](https://get.ogex.app/OGEX-0.2.4.dmg) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -26,7 +26,7 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 This repository is the macOS binary release.
 
-- **[OGEX-0.2.1.dmg](https://get.ogex.app/OGEX-0.2.1.dmg)**. macOS 11 (Big Sur) or later, Apple Silicon (M-series), notarized by Apple.
+- **[OGEX-0.2.4.dmg](https://get.ogex.app/OGEX-0.2.4.dmg)**. macOS 11 (Big Sur) or later, Apple Silicon (M-series), notarized by Apple.
 - Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized, so it launches normally.
 - Graphs save as plain JSON, so your projects are portable and easy to keep in version control.
 
@@ -66,7 +66,7 @@ Compositing layers with real blend modes: ImageAlphaOver has 29, ImageComposite 
 
 Image generators need nothing wired in; they build from their parameters. ImageNoiseGen covers Perlin, simplex, worley, and a stack of others, ImageMandelbrot renders Mandelbrot and Julia with deep zoom, and ImageVoronoi scatters cells. ImageReactionDiffusion grows spots, stripes, and labyrinths from a Gray-Scott sim with 40 presets, and every parameter can be painted per pixel by another image chain. ImageCellularAutomaton runs Life, WireWorld, and custom rules.
 
-Pattern and texture generators handle bricks, hex tiles, Truchet, checker, gradients, woven canvas, cracked mud, Chladni figures, and phasor caustics. ImageExpression evaluates a math expression at every pixel for masks and channel mixing without writing a full shader.
+Pattern and texture generators handle bricks, hex tiles, Truchet, checker, gradients, woven canvas, cracked mud, Chladni figures, and phasor caustics. ImageSimpleExpression evaluates a math expression at every pixel for masks and channel mixing without writing a full shader.
 
 `procedural noise` · `Perlin` · `simplex` · `worley` · `Voronoi` · `Mandelbrot` · `Julia` · `reaction diffusion` · `Gray-Scott` · `cellular automaton` · `Conway's Life` · `Truchet` · `Chladni` · `phasor noise` · `gradient generator` · `SMPTE bars`
 
