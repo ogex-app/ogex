@@ -4,7 +4,7 @@
 
 ### A node-based engine for live graphics, audio, lighting, and interactive media on macOS.
 
-[**Download for macOS (0.2.4)**](https://get.ogex.app/OGEX-0.2.4.dmg) · [Features](https://ogex.app/features)
+[**Download for macOS (0.2.5)**](https://get.ogex.app/OGEX-0.2.5.dmg) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -26,7 +26,7 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 This repository is the macOS binary release.
 
-- **[OGEX-0.2.4.dmg](https://get.ogex.app/OGEX-0.2.4.dmg)**. macOS 11 (Big Sur) or later, Apple Silicon (M-series), notarized by Apple.
+- **[OGEX-0.2.5.dmg](https://get.ogex.app/OGEX-0.2.5.dmg)**. macOS 11 (Big Sur) or later, Apple Silicon (M-series), notarized by Apple.
 - Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized, so it launches normally.
 - Graphs save as plain JSON, so your projects are portable and easy to keep in version control.
 
@@ -190,13 +190,13 @@ MVR scene files round-trip patch and 3D position with consoles and visualizers. 
 
 ### Projection mapping and warping
 
-Projection mapping covers corner-pin, homography, and mesh warp, plus a Kantan-style mapper you paint shapes in. ProjectorLayout slices a canvas across two to eight projectors with overlap, and ImageEdgeBlend ramps the seams. Structured-light and radiometric calibration scan the surface and emit the UV maps and gain maps so a projected image reads evenly on an uneven, off-axis surface. Any source warps: a 3D render, a shader, or video.
+Projection mapping covers corner-pin, homography, and grid warp, plus a Kantan-style mapper you paint shapes in. ProjectorLayout slices a canvas across two to eight projectors with overlap, and ImageEdgeBlend ramps the seams. Structured-light and radiometric calibration scan the surface and emit the UV maps and gain maps so a projected image reads evenly on an uneven, off-axis surface. Any source warps: a 3D render, a shader, or video.
 
-`projection mapping` · `corner pin` · `homography` · `mesh warp` · `Kantan` · `edge blend` · `structured light` · `radiometric calibration` · `gain map` · `multi-projector`
+`projection mapping` · `corner pin` · `homography` · `grid warp` · `Kantan` · `edge blend` · `structured light` · `radiometric calibration` · `gain map` · `multi-projector`
 
 <div align="center">
 
-![Projection mapping onto a sculptural surface](assets/reel-projectionmap.webp) ![The Kantan mesh-warp mapping editor](assets/reel-kantan.webp)
+![Projection mapping onto a sculptural surface](assets/reel-projectionmap.webp) ![The Kantan grid-warp mapping editor](assets/reel-kantan.webp)
 
 </div>
 
