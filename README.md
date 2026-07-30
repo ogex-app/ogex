@@ -2,9 +2,9 @@
 
 # OGEX
 
-### A node-based engine for live graphics, audio, lighting, and interactive media on macOS.
+### A node-based engine for live graphics, audio, lighting, and interactive media on macOS, Windows, Linux, and Raspberry Pi.
 
-[**Download for macOS (0.2.5)**](https://get.ogex.app/OGEX-0.2.5.dmg) · [Features](https://ogex.app/features)
+[**macOS**](https://get.ogex.app/OGEX-0.2.7.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.2.8-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.2.7-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.2.7-0_arm64.deb) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -24,11 +24,26 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 ## Download
 
-This repository is the macOS binary release.
+This repository is the binary release. Each platform ships on its own cadence, so the latest version differs between them.
 
-- **[OGEX-0.2.5.dmg](https://get.ogex.app/OGEX-0.2.5.dmg)**. macOS 11 (Big Sur) or later, Apple Silicon (M-series), notarized by Apple.
-- Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized, so it launches normally.
-- Graphs save as plain JSON, so your projects are portable and easy to keep in version control.
+| Platform | Version | Download | Size |
+|---|---|---|---|
+| macOS, Apple Silicon | 0.2.7 | [OGEX-0.2.7.dmg](https://get.ogex.app/OGEX-0.2.7.dmg) | 391 MB |
+| Windows, x64 | 0.2.8 | [OGEX-0.2.8-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.2.8-windows-x86_64-setup.exe) | 820 MB |
+| Linux, x86_64 (deb) | 0.2.7 | [ogex_0.2.7-0_amd64.deb](https://get.ogex.app/ogex_0.2.7-0_amd64.deb) | 991 MB |
+| Linux, x86_64 (tar.gz) | 0.2.7 | [ogex-0.2.7-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.2.7-linux-x86_64.tar.gz) | 1.22 GB |
+| Raspberry Pi 5 and Linux arm64 (deb) | 0.2.7 | [ogex_0.2.7-0_arm64.deb](https://get.ogex.app/ogex_0.2.7-0_arm64.deb) | 409 MB |
+| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.2.7 | [ogex-0.2.7-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.2.7-linux-aarch64.tar.gz) | 530 MB |
+
+**macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it launches normally.
+
+**Windows.** Run the installer. The binary is not code signed yet, so Windows will warn you before it runs. Choose More info, then Run anyway. Signing is planned for a future release. The installer also puts the Visual C++ runtime in place if your machine does not already have it.
+
+**Linux.** Install the deb with `sudo apt install ./ogex_0.2.7-0_amd64.deb`, or unpack the tar.gz anywhere and run `bin/ogex-studio` from the extracted folder.
+
+**Raspberry Pi.** The arm64 build is made on a Pi 5 running 64-bit Raspberry Pi OS, and installs the same way as the Linux build. It also runs on other arm64 Linux machines.
+
+Graphs save as plain JSON, so your projects are portable and easy to keep in version control.
 
 ## What is inside
 
@@ -300,11 +315,13 @@ A Diagnostics panel collects lint and validation results with Console, Change Lo
 
 ## Requirements and status
 
-- macOS 11 (Big Sur) or later, Apple Silicon (M-series). This release is a macOS binary.
-- The build is signed with a Developer ID and notarized by Apple.
+- **macOS.** macOS 11 (Big Sur) or later, Apple Silicon (M-series). Signed with a Developer ID and notarized by Apple.
+- **Windows.** 64-bit Windows 10 version 1809 or later, and Windows 11.
+- **Linux.** Ubuntu 24.04 LTS or newer, on glibc 2.39 or newer. X11 and Wayland both work.
+- **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi graphics driver does not support the GPU fluid simulation or float blended rendering, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
 - Graphs are JSON and run in OGEX, or through the Python library.
 
-macOS is the only download for now. A Linux build is coming soon, and Windows is in the works.
+All four platforms are live. macOS, Linux, and Raspberry Pi are on 0.2.7; Windows is on 0.2.8.
 
 ## Links
 
@@ -314,4 +331,4 @@ macOS is the only download for now. A Linux build is coming soon, and Windows is
 
 ---
 
-<sub>Keywords: node-based visual programming, dataflow, creative coding, live visuals, VJ software, generative art, TouchDesigner alternative, Max/MSP, vvvv, Notch, live graphics node editor, GPU particles, WGSL, GLSL, Shadertoy, shader live coding, PBR rendering, XPBD cloth simulation, soft body physics, rigid body dynamics, SDF, NURBS, procedural geometry, terrain generation, DMX, Art-Net, sACN, lighting control, projection mapping, NDI, Syphon, RTMP, OSC, Ableton Live, MIDI router, RTP-MIDI, MPE, sequencer, computer vision, face tracking, hand tracking, depth camera, interactive installation, macOS, Apple Silicon.</sub>
+<sub>Keywords: node-based visual programming, dataflow, creative coding, live visuals, VJ software, generative art, TouchDesigner alternative, Max/MSP, vvvv, Notch, live graphics node editor, GPU particles, WGSL, GLSL, Shadertoy, shader live coding, PBR rendering, XPBD cloth simulation, soft body physics, rigid body dynamics, SDF, NURBS, procedural geometry, terrain generation, DMX, Art-Net, sACN, lighting control, projection mapping, NDI, Syphon, RTMP, OSC, Ableton Live, MIDI router, RTP-MIDI, MPE, sequencer, computer vision, face tracking, hand tracking, depth camera, interactive installation, macOS, Apple Silicon, Windows, Linux, Ubuntu, Raspberry Pi, arm64.</sub>
