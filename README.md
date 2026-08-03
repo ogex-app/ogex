@@ -4,7 +4,7 @@
 
 ### A node-based engine for live graphics, audio, lighting, and interactive media on macOS, Windows, Linux, and Raspberry Pi.
 
-[**macOS**](https://get.ogex.app/OGEX-0.2.9.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.2.9-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.2.9-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.2.7-0_arm64.deb) · [Features](https://ogex.app/features)
+[**macOS**](https://get.ogex.app/OGEX-0.2.9.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.2.9-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.2.9-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.2.9-0_arm64.deb) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -32,8 +32,8 @@ This repository is the binary release. Each platform ships on its own cadence, s
 | Windows, x64 | 0.2.9 | [OGEX-0.2.9-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.2.9-windows-x86_64-setup.exe) | 821 MB |
 | Linux, x86_64 (deb) | 0.2.9 | [ogex_0.2.9-0_amd64.deb](https://get.ogex.app/ogex_0.2.9-0_amd64.deb) | 994 MB |
 | Linux, x86_64 (tar.gz) | 0.2.9 | [ogex-0.2.9-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.2.9-linux-x86_64.tar.gz) | 1.23 GB |
-| Raspberry Pi 5 and Linux arm64 (deb) | 0.2.7 | [ogex_0.2.7-0_arm64.deb](https://get.ogex.app/ogex_0.2.7-0_arm64.deb) | 409 MB |
-| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.2.7 | [ogex-0.2.7-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.2.7-linux-aarch64.tar.gz) | 530 MB |
+| Raspberry Pi 5 and Linux arm64 (deb) | 0.2.9 | [ogex_0.2.9-0_arm64.deb](https://get.ogex.app/ogex_0.2.9-0_arm64.deb) | 413 MB |
+| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.2.9 | [ogex-0.2.9-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.2.9-linux-aarch64.tar.gz) | 535 MB |
 
 **macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it launches normally.
 
@@ -321,7 +321,7 @@ A Diagnostics panel collects lint and validation results with Console, Change Lo
 - **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi graphics driver does not support the GPU fluid simulation or float blended rendering, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
 - Graphs are JSON and run in OGEX, or through the Python library.
 
-All four platforms are live. macOS, Windows, and Linux are on 0.2.9; Raspberry Pi is on 0.2.7.
+All four platforms are live on 0.2.9.
 
 ## Links
 
