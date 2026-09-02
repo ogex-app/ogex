@@ -4,7 +4,7 @@
 
 ### A node-based engine for live graphics, audio, lighting, and interactive media on macOS, Windows, Linux, and Raspberry Pi.
 
-[**macOS**](https://get.ogex.app/OGEX-0.2.9.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.2.9-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.2.9-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.2.9-0_arm64.deb) · [Features](https://ogex.app/features)
+[**macOS**](https://get.ogex.app/OGEX-0.4.2.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.4.2-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.4.2-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.4.2-0_arm64.deb) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -24,22 +24,22 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 ## Download
 
-This repository is the binary release. Each platform ships on its own cadence, so the latest version differs between them.
+This repository is the binary release. Each platform ships on its own cadence, so the latest version can differ between them. Right now every platform is on 0.4.2.
 
 | Platform | Version | Download | Size |
 |---|---|---|---|
-| macOS, Apple Silicon | 0.2.9 | [OGEX-0.2.9.dmg](https://get.ogex.app/OGEX-0.2.9.dmg) | 393 MB |
-| Windows, x64 | 0.2.9 | [OGEX-0.2.9-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.2.9-windows-x86_64-setup.exe) | 821 MB |
-| Linux, x86_64 (deb) | 0.2.9 | [ogex_0.2.9-0_amd64.deb](https://get.ogex.app/ogex_0.2.9-0_amd64.deb) | 994 MB |
-| Linux, x86_64 (tar.gz) | 0.2.9 | [ogex-0.2.9-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.2.9-linux-x86_64.tar.gz) | 1.23 GB |
-| Raspberry Pi 5 and Linux arm64 (deb) | 0.2.9 | [ogex_0.2.9-0_arm64.deb](https://get.ogex.app/ogex_0.2.9-0_arm64.deb) | 413 MB |
-| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.2.9 | [ogex-0.2.9-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.2.9-linux-aarch64.tar.gz) | 535 MB |
+| macOS, Apple Silicon | 0.4.2 | [OGEX-0.4.2.dmg](https://get.ogex.app/OGEX-0.4.2.dmg) | 466 MB |
+| Windows, x64 | 0.4.2 | [OGEX-0.4.2-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.4.2-windows-x86_64-setup.exe) | 994 MB |
+| Linux, x86_64 (deb) | 0.4.2 | [ogex_0.4.2-0_amd64.deb](https://get.ogex.app/ogex_0.4.2-0_amd64.deb) | 1.07 GB |
+| Linux, x86_64 (tar.gz) | 0.4.2 | [ogex-0.4.2-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.4.2-linux-x86_64.tar.gz) | 1.35 GB |
+| Raspberry Pi 5 and Linux arm64 (deb) | 0.4.2 | [ogex_0.4.2-0_arm64.deb](https://get.ogex.app/ogex_0.4.2-0_arm64.deb) | 480 MB |
+| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.4.2 | [ogex-0.4.2-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.4.2-linux-aarch64.tar.gz) | 607 MB |
 
 **macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it launches normally.
 
 **Windows.** Run the installer. The binary is not code signed yet, so Windows will warn you before it runs. Choose More info, then Run anyway. Signing is planned for a future release. The installer also puts the Visual C++ runtime in place if your machine does not already have it.
 
-**Linux.** Install the deb with `sudo apt install ./ogex_0.2.9-0_amd64.deb`, or unpack the tar.gz anywhere and run `bin/ogex-studio` from the extracted folder.
+**Linux.** Install the deb with `sudo apt install ./ogex_0.4.2-0_amd64.deb`, or unpack the tar.gz anywhere and run `bin/ogex-studio` from the extracted folder.
 
 **Raspberry Pi.** The arm64 build is made on a Pi 5 running 64-bit Raspberry Pi OS, and installs the same way as the Linux build. It also runs on other arm64 Linux machines.
 
@@ -205,13 +205,13 @@ MVR scene files round-trip patch and 3D position with consoles and visualizers. 
 
 ### Projection mapping and warping
 
-Projection mapping covers corner-pin, homography, and grid warp, plus a Kantan-style mapper you paint shapes in. ProjectorLayout slices a canvas across two to eight projectors with overlap, and ImageEdgeBlend ramps the seams. Structured-light and radiometric calibration scan the surface and emit the UV maps and gain maps so a projected image reads evenly on an uneven, off-axis surface. Any source warps: a 3D render, a shader, or video.
+Projection mapping covers corner-pin, homography, and grid warp, plus a ProjectionMapper you paint shapes in. ProjectorLayout slices a canvas across two to eight projectors with overlap, and ImageEdgeBlend ramps the seams. Structured-light and radiometric calibration scan the surface and emit the UV maps and gain maps so a projected image reads evenly on an uneven, off-axis surface. Any source warps: a 3D render, a shader, or video.
 
-`projection mapping` · `corner pin` · `homography` · `grid warp` · `Kantan` · `edge blend` · `structured light` · `radiometric calibration` · `gain map` · `multi-projector`
+`projection mapping` · `corner pin` · `homography` · `grid warp` · `ProjectionMapper` · `edge blend` · `structured light` · `radiometric calibration` · `gain map` · `multi-projector`
 
 <div align="center">
 
-![Projection mapping onto a sculptural surface](assets/reel-projectionmap.webp) ![The Kantan grid-warp mapping editor](assets/reel-kantan.webp)
+![Projection mapping onto a sculptural surface](assets/reel-projectionmap.webp) ![The Projection Mapper grid-warp mapping editor](assets/reel-projection-mapper.webp)
 
 </div>
 
@@ -295,7 +295,7 @@ OGEX opens dedicated editor windows on specific nodes. Each reads its node live 
 - **MIDI.** A Piano Roll with velocity and CC lanes and recording, plus Clips, Transport, Devices, Monitor, Routing Matrix, Profile Library and editor, Controller Surface, Patch Librarian, SysEx editor, Song/Setlist, and Push Surface.
 - **OSC and Ableton.** An OSC Monitor, Namespace and OSCQuery browsers, Mappings, and Learn; plus an Ableton Live Companion mirroring Live's session view, with Scenes, Cue Points, Sends, and a Device inspector on one connection.
 - **Streaming.** A Sources window of live thumbnails you drag onto the canvas as a wired receive chain, a Tally Master, a PTZ Controller, a Stream Deck Layout, Network Settings, and a Network Status window with per-NIC and per-stream tables and a PTP block.
-- **Visual editors.** A shader editor with auto-compile, completion, and inline error squiggles mapped to your source; a Compositor; the Kantan mapper; a keyframe editor; and a video timeline with V/A clips, transitions, render to file, and EDL and SRT export.
+- **Visual editors.** A shader editor with auto-compile, completion, and inline error squiggles mapped to your source; a Compositor; the Projection Mapper; a keyframe editor; and a video timeline with V/A clips, transitions, render to file, and EDL and SRT export.
 - **Inspectors.** An orbit viewport for geometry, scenes, and materials with a scene tree and attribute spreadsheet; a material preview under several HDRIs; an SDF and volume ray-marcher; and a heightfield sampler.
 
 ![The video timeline editor window](assets/hcam-video-timeline.webp)
@@ -321,7 +321,7 @@ A Diagnostics panel collects lint and validation results with Console, Change Lo
 - **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi graphics driver does not support the GPU fluid simulation or float blended rendering, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
 - Graphs are JSON and run in OGEX, or through the Python library.
 
-All four platforms are live on 0.2.9.
+Every platform is on 0.4.2.
 
 ## Links
 
