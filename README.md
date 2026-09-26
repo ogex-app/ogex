@@ -4,7 +4,7 @@
 
 ### A node-based engine for live graphics, audio, lighting, and interactive media on macOS, Windows, Linux, and Raspberry Pi.
 
-[**macOS**](https://get.ogex.app/OGEX-0.4.4.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.4.4-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.4.4-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.4.4-0_arm64.deb) · [Features](https://ogex.app/features)
+[**macOS**](https://get.ogex.app/OGEX-0.4.5.dmg) · [**Windows**](https://get.ogex.app/OGEX-0.4.5-windows-x86_64-setup.exe) · [**Linux**](https://get.ogex.app/ogex_0.4.5-0_amd64.deb) · [**Raspberry Pi**](https://get.ogex.app/ogex_0.4.5-0_arm64.deb) · [Features](https://ogex.app/features)
 
 [![Watch the OGEX showreel](https://img.youtube.com/vi/JXA2xRo9f88/maxresdefault.jpg)](https://www.youtube.com/watch?v=JXA2xRo9f88)
 
@@ -24,22 +24,22 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 ## Download
 
-This repository is the binary release. Each platform ships on its own cadence, so the latest version can differ between them. Right now every platform is on 0.4.4.
+This repository is the binary release. Each platform ships on its own cadence, so the latest version can differ between them. Right now every platform is on 0.4.5.
 
 | Platform | Version | Download | Size |
 |---|---|---|---|
-| macOS, Apple Silicon | 0.4.4 | [OGEX-0.4.4.dmg](https://get.ogex.app/OGEX-0.4.4.dmg) | 464 MB |
-| Windows, x64 | 0.4.4 | [OGEX-0.4.4-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.4.4-windows-x86_64-setup.exe) | 992 MB |
-| Linux, x86_64 (deb) | 0.4.4 | [ogex_0.4.4-0_amd64.deb](https://get.ogex.app/ogex_0.4.4-0_amd64.deb) | 1.05 GB |
-| Linux, x86_64 (tar.gz) | 0.4.4 | [ogex-0.4.4-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.4.4-linux-x86_64.tar.gz) | 1.34 GB |
-| Raspberry Pi 5 and Linux arm64 (deb) | 0.4.4 | [ogex_0.4.4-0_arm64.deb](https://get.ogex.app/ogex_0.4.4-0_arm64.deb) | 471 MB |
-| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.4.4 | [ogex-0.4.4-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.4.4-linux-aarch64.tar.gz) | 594 MB |
+| macOS, Apple Silicon | 0.4.5 | [OGEX-0.4.5.dmg](https://get.ogex.app/OGEX-0.4.5.dmg) | 478 MB |
+| Windows, x64 | 0.4.5 | [OGEX-0.4.5-windows-x86_64-setup.exe](https://get.ogex.app/OGEX-0.4.5-windows-x86_64-setup.exe) | 1006 MB |
+| Linux, x86_64 (deb) | 0.4.5 | [ogex_0.4.5-0_amd64.deb](https://get.ogex.app/ogex_0.4.5-0_amd64.deb) | 1.07 GB |
+| Linux, x86_64 (tar.gz) | 0.4.5 | [ogex-0.4.5-linux-x86_64.tar.gz](https://get.ogex.app/ogex-0.4.5-linux-x86_64.tar.gz) | 1.35 GB |
+| Raspberry Pi 5 and Linux arm64 (deb) | 0.4.5 | [ogex_0.4.5-0_arm64.deb](https://get.ogex.app/ogex_0.4.5-0_arm64.deb) | 484 MB |
+| Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.4.5 | [ogex-0.4.5-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.4.5-linux-aarch64.tar.gz) | 609 MB |
 
 **macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it launches normally.
 
 **Windows.** Run the installer. The binary is not code signed yet, so Windows will warn you before it runs. Choose More info, then Run anyway. Signing is planned for a future release. The installer also puts the Visual C++ runtime in place if your machine does not already have it.
 
-**Linux.** Install the deb with `sudo apt install ./ogex_0.4.4-0_amd64.deb`, or unpack the tar.gz anywhere and run `usr/bin/ogex-studio` from inside the extracted `ogex-<version>-linux-<arch>` folder.
+**Linux.** Install the deb with `sudo apt install ./ogex_0.4.5-0_amd64.deb`, or unpack the tar.gz anywhere and run `usr/bin/ogex-studio` from inside the extracted `ogex-<version>-linux-<arch>` folder.
 
 **Raspberry Pi.** The arm64 build is made on a Pi 5 running 64-bit Raspberry Pi OS, and installs the same way as the Linux build. It also runs on other arm64 Linux machines.
 
@@ -321,7 +321,7 @@ A Diagnostics panel collects lint and validation results with Console, Change Lo
 - **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi graphics driver does not support the GPU fluid simulation or float blended rendering, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
 - Graphs are JSON and run in OGEX, or through the Python library.
 
-Every platform is on 0.4.4.
+Every platform is on 0.4.5.
 
 ## Links
 
