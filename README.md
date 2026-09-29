@@ -12,9 +12,9 @@
 
 ---
 
-OGEX is a node graph engine for building live visuals and interactive systems. You drag boxes onto a canvas, wire them together, and data flows through the graph. Each box does one job. A webcam, a blur, a shader, a particle emitter, a DMX universe. Wire them up and a preview updates live while you drag a slider. There is no compile step and no render-and-wait.
+OGEX is a node graph engine for building live visuals and interactive systems. You drag boxes onto a canvas, wire them together, and data flows through the graph. Each box does one job. A webcam, a blur, a shader, a particle emitter, a DMX universe. Wire them up and the picture updates while you drag a slider. There is no compile step and no render-and-wait.
 
-If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph idea will feel familiar. One dataflow graph drives the parts described below: GPU rendering, shaders, geometry, physics, audio, MIDI, OSC, DMX lighting, NDI, and projection mapping.
+If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph idea will feel familiar. One graph drives everything described below: 3D rendering, shaders, geometry, splats, simulation, audio, MIDI, OSC, DMX lighting, NDI, and projection mapping.
 
 <div align="center">
 
@@ -24,7 +24,7 @@ If you have used TouchDesigner, Max/MSP, vvvv, Notch, or Houdini, the node-graph
 
 ## Download
 
-This repository is the binary release. Each platform ships on its own cadence, so the latest version can differ between them. Right now every platform is on 0.4.6.
+This repository is the binary release. Each platform is updated on its own schedule, so the latest version can differ between them. Right now every platform is on 0.4.6.
 
 | Platform | Version | Download | Size |
 |---|---|---|---|
@@ -35,9 +35,9 @@ This repository is the binary release. Each platform ships on its own cadence, s
 | Raspberry Pi 5 and Linux arm64 (deb) | 0.4.6 | [ogex_0.4.6-0_arm64.deb](https://get.ogex.app/ogex_0.4.6-0_arm64.deb) | 479 MB |
 | Raspberry Pi 5 and Linux arm64 (tar.gz) | 0.4.6 | [ogex-0.4.6-linux-aarch64.tar.gz](https://get.ogex.app/ogex-0.4.6-linux-aarch64.tar.gz) | 591 MB |
 
-**macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it launches normally.
+**macOS.** Open the DMG and drag OGEX to Applications. It is signed with a Developer ID and notarized by Apple, so it opens normally.
 
-**Windows.** Run the installer. The binary is not code signed yet, so Windows will warn you before it runs. Choose More info, then Run anyway. Signing is planned for a future release. The installer also puts the Visual C++ runtime in place if your machine does not already have it.
+**Windows.** Run the installer. It is code signed, with Elliot Turner as the publisher. A new release can still get a SmartScreen warning for its first few days; if it does, choose More info, then Run anyway. The installer also puts the Visual C++ runtime in place if your machine does not already have it.
 
 **Linux.** Install the deb with `sudo apt install ./ogex_0.4.6-0_amd64.deb`, or unpack the tar.gz anywhere and run `usr/bin/ogex-studio` from inside the extracted `ogex-<version>-linux-<arch>` folder.
 
@@ -49,19 +49,19 @@ Graphs save as plain JSON, so your projects are portable and easy to keep in ver
 
 ### 3D rendering and PBR materials
 
-Rendering is a Vulkan rasterizer (ash), with a CPU fallback and a per-node auto/GPU/CPU switch. Every render writes color, depth, and normals together, in Blinn-Phong or Cook-Torrance GGX. There are eight material types: PbrMaterial does the full metal-roughness set with triplanar projection and parallax height, and the rest cover Phong, unlit, wireframe, depth, lines, point sprites, and ShaderMaterial for your own WGSL or GLSL.
+Rendering runs on the GPU through Vulkan, with a CPU path as backup, and each render node has its own GPU/CPU switch. There are nine material types: PbrMaterial does the full metal-roughness look with parallax height, and the rest cover Phong, unlit, wireframe, depth, lines, point sprites, a shadow catcher for dropping CG onto live footage, and ShaderMaterial for your own WGSL or GLSL. Triplanar projection lives on the material create and update nodes.
 
-Up to 64 lights, with soft shadows on 8 of them. Drop in an HDRI and image-based lighting bakes the irradiance and reflections once and caches it; a cubemap probe handles live reflections. Cameras go from plain perspective to fisheye and a custom projection matrix. Anti-aliasing is SSAA or TAA, tone mapping is ACES, Reinhard, or filmic, and bloom, SSAO, and depth of field live in separate image nodes you hang off the render. Geometry stays on the GPU between frames, instances from four copies up, and imports from OBJ, glTF, FBX, USD, and Alembic.
+Up to 64 lights, with soft shadows on 8 of them. Drop in an HDRI and the image-based lighting is worked out once and kept; a cubemap probe handles live reflections. Cameras go from plain perspective to fisheye and a custom projection matrix. Anti-aliasing is SSAA, MSAA, or TAA, and tone mapping is ACES, ACES 2.0, AgX, PBR Neutral, or Reinhard. Bloom, ambient occlusion, and depth of field are separate image nodes you hang off the render. Repeated objects draw as instances, and geometry stays on the GPU between frames. Import covers OBJ, glTF, FBX, USD, Alembic, PLY, and STL.
 
-`PBR` · `Cook-Torrance GGX` · `Blinn-Phong` · `metallic-roughness` · `shadow mapping` · `PCF soft shadows` · `image-based lighting` · `IBL` · `HDRI` · `SSAA` · `TAA` · `fisheye camera` · `tone mapping` · `ACES` · `glTF` · `USD` · `Alembic`
+`PBR` · `Cook-Torrance GGX` · `Blinn-Phong` · `metallic-roughness` · `shadow mapping` · `PCF soft shadows` · `image-based lighting` · `IBL` · `HDRI` · `shadow catcher` · `SSAA` · `MSAA` · `TAA` · `fisheye camera` · `tone mapping` · `ACES` · `AgX` · `glTF` · `USD` · `Alembic`
 
 ![PBR torus lit by an HDR environment map](assets/vr-torus-hdr-ibl.webp)
 
 ### Custom shaders (WGSL, GLSL, Shadertoy)
 
-Write WGSL or GLSL inline and it compiles live, with errors mapped back to your own line numbers rather than the prologue. ImageShader is 2D compute over images: up to 8 inputs, 7 outputs, and up to 64 ping-pong passes, so blur stacks and feedback need no wired loop. ShaderMaterial is a custom vertex and fragment material that falls back to PBR if it fails to compile. AttributeShader runs compute over geometry, one thread per point or primitive.
+Write WGSL or GLSL right in the node and it recompiles as you type, with errors pointing at your own line numbers. ImageShader works on images: up to 8 inputs, 7 outputs, and up to 64 passes per frame, so blur stacks and feedback need no wired loop. ShaderMaterial is your own vertex and fragment material, and falls back to plain PBR if it fails to compile. AttributeShader runs over geometry, once per point, corner, or face.
 
-Uniforms are declared in JSON and edited live, and a TouchDesigner-style prologue plus an `#include` system supply noise, lighting, SDF, color, and Shadertoy helpers. Set `shadertoy_compat` and a classic `mainImage` body ports with small edits. A bad recompile keeps the last working shader on screen and flags the error, so you fix it without losing your output. Right-click a PbrMaterial and Dump Source hands you an editable ShaderMaterial to start from.
+Uniforms show up as sliders you can drive live, and `#include` libraries give you noise, lighting, SDF, color, and Shadertoy helpers. Turn on `shadertoy_compat` and a classic `mainImage` shader comes across with small edits. A bad edit keeps the last working shader on screen and flags the error, so you never lose your output mid-show. The Material Inspector's Dump Source button turns a PbrMaterial into an editable ShaderMaterial to start from.
 
 `WGSL` · `GLSL` · `Shadertoy` · `compute shader` · `fragment shader` · `vertex shader` · `multi-pass` · `multiple render targets` · `specialization constants` · `vertex skinning` · `shader hot reload`
 
@@ -69,19 +69,19 @@ Uniforms are declared in JSON and edited live, and a TouchDesigner-style prologu
 
 ### Image processing and compositing
 
-The Image nodes cover grading, filters, compositing, distortion, and stylize. Grading runs lift/gamma/gain, curves, LUTs, white balance, histogram match, and tone mapping, with color-space conversion across RGB, HSL, Lab, YUV, and ACES. ImageBlur has nine kernels plus dedicated bilateral, kuwahara, bokeh, and tilt-shift nodes, and edge detection runs sobel through canny.
+The Image nodes cover grading, filters, compositing, distortion, and stylize. Grading has lift/gamma/gain, curves, LUTs, white balance, histogram match, and tone mapping, with color-space conversion across RGB, HSV, HSL, Lab, YUV, XYZ, ACES, Rec.2020, and Display P3. ImageOpenColorIO applies an OCIO config, so OGEX can sit in a studio color pipeline. ImageBlur has nine kernels, plus dedicated bilateral, kuwahara, bokeh, and tilt-shift nodes, and edge detection runs from sobel to canny.
 
-Compositing layers with real blend modes: ImageAlphaOver has 29, ImageComposite 44, alongside chroma and luma key, difference matte, and depth compositing. Distortion and layout cover lens distort, chromatic aberration, kaleidoscope, swirl, pixel-sort, slit-scan, and UV remap, and the temporal nodes do feedback, frame delay, trails, and time warp. Every image node has an Application/GPU/CPU switch, and chains stay GPU-resident end to end where the format allows.
+Compositing layers with real blend modes: ImageAlphaOver has 31, ImageComposite 47, alongside chroma and luma key, difference matte, and depth compositing. Distortion covers lens distort, chromatic aberration, kaleidoscope, swirl, pixel-sort, slit-scan, and UV remap, and the time-based nodes do feedback, frame delay, trails, and time warp. Image chains run on the GPU, in 8-bit or 32-bit float, and nearly every image node has a GPU/CPU switch.
 
-`color grading` · `Gaussian blur` · `convolution kernel` · `chroma key` · `luma key` · `blend modes` · `CLAHE` · `LUT` · `lens distortion` · `chromatic aberration` · `kaleidoscope` · `pixel sort` · `slit scan` · `Canny` · `premultiply`
+`color grading` · `OpenColorIO` · `OCIO` · `Gaussian blur` · `convolution kernel` · `chroma key` · `luma key` · `blend modes` · `CLAHE` · `LUT` · `lens distortion` · `chromatic aberration` · `kaleidoscope` · `pixel sort` · `slit scan` · `Canny` · `premultiply`
 
 ![An aurora color-grade built from an image processing chain](assets/vi-grade-aurora.webp)
 
 ### Image generators and procedural textures
 
-Image generators need nothing wired in; they build from their parameters. ImageNoiseGen covers Perlin, simplex, worley, and a stack of others, ImageMandelbrot renders Mandelbrot and Julia with deep zoom, and ImageVoronoi scatters cells. ImageReactionDiffusion grows spots, stripes, and labyrinths from a Gray-Scott sim with 40 presets, and every parameter can be painted per pixel by another image chain. ImageCellularAutomaton runs Life, WireWorld, and custom rules.
+Image generators need nothing wired in; they build from their own settings. ImageNoiseGen covers Perlin, simplex, worley, and ten other noise types, ImageMandelbrot renders Mandelbrot and Julia with deep zoom, and ImageVoronoi scatters cells. ImageReactionDiffusion grows spots, stripes, and labyrinths from 40 presets, and its feed, kill, and diffusion can each be painted per pixel by another image chain. ImageCellularAutomaton runs Life, WireWorld, and your own rules.
 
-Pattern and texture generators handle bricks, hex tiles, Truchet, checker, gradients, woven canvas, cracked mud, Chladni figures, and phasor caustics. ImageSimpleExpression evaluates a math expression at every pixel for masks and channel mixing without writing a full shader.
+Pattern and texture generators make bricks, hex tiles, Truchet, checker, gradients, woven canvas, cracked mud, Chladni figures, and caustics. ImageSimpleExpression runs a math expression on every pixel for masks and channel mixing, without writing a full shader.
 
 `procedural noise` · `Perlin` · `simplex` · `worley` · `Voronoi` · `Mandelbrot` · `Julia` · `reaction diffusion` · `Gray-Scott` · `cellular automaton` · `Conway's Life` · `Truchet` · `Chladni` · `phasor noise` · `gradient generator` · `SMPTE bars`
 
@@ -93,9 +93,9 @@ Pattern and texture generators handle bricks, hex tiles, Truchet, checker, gradi
 
 ### Geometry, NURBS, and signed distance fields
 
-The procedural modeling nodes carry the 3DGeo prefix. You get the usual primitives, boolean CSG that can tag the cut seam, Catmull-Clark and Loop subdivision, and adaptive remeshing. Deformers run bend, twist, taper, lattice, delta mush, shrinkwrap, and a couple dozen more, plus Voronoi fracture, L-systems, and metaball and marching-cubes surfacing. Topology, UV, and instancing tools round it out, and a 26-node attribute family creates, transfers, blurs, and randomizes point and primitive attributes. Import and export both cover OBJ, FBX, glTF, PLY, STL, USD, and Alembic.
+The procedural modeling nodes carry the 3DGeo prefix. You get the usual primitives, boolean CSG that can tag the cut seam, Catmull-Clark and Loop subdivision, and adaptive remeshing. Deformers run bend, twist, taper, lattice, delta mush, shrinkwrap, and a couple dozen more, plus Voronoi fracture, L-systems, and metaball and marching-cubes surfacing. Topology, UV, and instancing tools round it out, and a 36-node attribute family creates, transfers, blurs, and randomizes point and face data. Import and export both cover OBJ, FBX, glTF, PLY, STL, USD, and Alembic.
 
-NURBS curves and surfaces revolve, sweep, loft, trim, fillet, and intersect for true CAD-style modeling. Signed distance fields move through a Volume port: build exact SDF primitives up to 512 voxels, smooth-boolean them, bake a mesh into a field or march it back out, and shell, roughen, repeat, and sample along the way. TextSDF renders text into a field that stays sharp at any size.
+NURBS curves and surfaces revolve, sweep, loft, trim, fillet, and intersect for CAD-style modeling. Signed distance fields travel as volumes: build SDF primitives up to 512 voxels a side, smooth-blend them, turn a mesh into a field or a field back into a mesh, and shell, roughen, and repeat them along the way. On the image side, TextSDF renders text as a distance field that stays sharp at any size.
 
 `procedural geometry` · `boolean CSG` · `Catmull-Clark` · `remesh` · `Voronoi fracture` · `metaball` · `marching cubes` · `L-system` · `lattice deform` · `delta mush` · `pelt unwrap` · `NURBS` · `B-spline` · `loft` · `revolve` · `SDF` · `signed distance field` · `smooth boolean` · `voxel`
 
@@ -105,19 +105,25 @@ NURBS curves and surfaces revolve, sweep, loft, trim, fillet, and intersect for 
 
 </div>
 
-### SVG and vector graphics
+### Gaussian splats
 
-The SVG nodes build, transform, and render vector documents inside the graph: shape generators, compound-path booleans, path morph and offset, text on a path, and generative pieces like Voronoi, circle packing, and Lissajous. It bridges both ways too, extruding paths into 3D meshes, flattening meshes back to wireframe, and rasterizing to and from images.
+Splats are first-class geometry. Import captured scenes from PLY, SPZ, SOG, SPLAT, and KSPLAT files, then crop, prune, thin, align, and color-match them, deform them with cages and fields, and relight them with PBR lighting and shadows. Splats can be skinned to a rig, turned into meshes or volumes, grown from a mesh, and exported again. 3DGeoSplatKernel runs your own per-splat shader code.
 
-`SVG` · `vector graphics` · `compound path` · `path morph` · `circle packing` · `Lissajous` · `text on path` · `SVG to geometry` · `geometry to SVG` · `bar chart`
+`Gaussian splatting` · `3DGS` · `splat` · `SPZ` · `SOG` · `KSPLAT` · `point cloud` · `splat relighting` · `splat to mesh`
 
-![A generative SVG spiral](assets/vsvg-spiral.webp)
+### Rigging, character animation, and motion capture
+
+The rig nodes build a skeleton, paint and bind skin weights, and pose with two-bone and full-body IK. Load animation clips from glTF, VRM, FBX, BVH, and USD, retarget them between characters, and blend and sequence them. Ragdolls, secondary motion like jiggle and follow-through, blendshapes, and AudioToFace (a voice track drives the mouth) are all nodes too.
+
+Live motion capture comes in over VMC, Live Link Face, iFacialMocap, and VTube Studio, so a suit or a phone can drive a character while the show runs, and the Mocap window records takes. Optical marker data loads from C3D files exported by Vicon, Qualisys, and OptiTrack and solves onto a skeleton.
+
+`rigging` · `skinning` · `weight paint` · `inverse kinematics` · `full-body IK` · `retargeting` · `BVH` · `VRM` · `ragdoll` · `blendshapes` · `motion capture` · `VMC` · `Live Link Face` · `C3D` · `Vicon` · `OptiTrack`
 
 ### GPU particles
 
-Particles carry the 3DGeoParticle prefix and scale to 10 million live. There are two emitter models. The simple emitter births, simulates, and kills in one node, for quick emit-to-render graphs. The chain emitter splits lifecycle, forces, and integration into separate nodes, so a stack of force nodes (wind, vortex, attract, orbit, flocking, drag, spin, and more) composes cleanly while the solver handles the physics. Collision bounces or sticks particles off boxes, spheres, and meshes.
+Particles carry the 3DGeoParticle prefix and scale to 10 million live. There are two ways to build them. The simple emitter births, moves, and kills particles in one node, for quick emit-to-render graphs. The chain emitter splits birth, forces, and motion into separate nodes, so you stack force nodes (wind, vortex, attract, orbit, flocking, drag, spin, and more) and a solver moves everything. Collision bounces, slides, or sticks particles off planes, boxes, spheres, cylinders, and meshes.
 
-Render them as instanced geometry, ribbons, trails, or billboarded sprites. Stream operators split, group, and spawn-on-event for sparks and debris, and per-particle color ramps, texture lookups, and expressions style the look.
+Render them as instanced geometry, ribbons, trails, or sprites. Split, group, and spawn-on-event nodes make sparks and debris, and per-particle color ramps, texture lookups, and expressions style the look.
 
 `GPU particles` · `particle emitter` · `chain solver` · `flocking` · `boids` · `vortex` · `attractor` · `point sprites` · `ribbon` · `trail` · `substeps` · `particle collision` · `color ramp`
 
@@ -127,13 +133,21 @@ Render them as instanced geometry, ribbons, trails, or billboarded sprites. Stre
 
 </div>
 
+### Smoke, fire, and liquids
+
+The 3DGeoFluid nodes simulate smoke, fire, and explosions on the GPU: emit density and heat, stack forces like buoyancy, wind, turbulence, and vortices, burn fuel into flame, and render the result as a lit volume or cache it to disk. 3DGeoFluidSimpleSolver wraps a whole setup in one node with presets such as flames, with every setting on one panel.
+
+The 3DGeoFlip nodes do liquids: splashing water with whitewater spray and foam, viscous goo, surface tension, ocean waves, and liquid that pushes rigid bodies around and is pushed back, then mesh the surface for rendering.
+
+`fluid simulation` · `smoke simulation` · `fire simulation` · `pyro` · `volume rendering` · `FLIP` · `liquid simulation` · `whitewater` · `ocean spectrum` · `viscosity`
+
 ### Physics: soft bodies, cloth, and rigid bodies
 
-Two engines. PBDSim is an XPBD solver for the soft stuff: cloth, hair, soft bodies, grain, and inflatables. You don't wire its constraints by hand. A recipe node takes a mesh or some curves and builds the setup for you, one each for cloth, hair, grain, softbody, balloon, and a stuffed-animal preset with whole-body shape matching. Cloth tears and goes plastic. Soft bodies run on tetrahedra with volume preservation, or on struts ray-cast through a shell. Balloons hold their air. When you want the constraints in your own hands instead, PBDSimConstraints exposes all 19 types. PBDSimSolverFrameRange bakes an offline run in a single tick, and PBDSimIO caches the result to disk for sub-frame playback.
+Two engines. PBDSim is a position-based solver for the soft stuff: cloth, hair, soft bodies, grain, inflatables, and particle fluids. You don't wire its constraints by hand. A recipe node takes a mesh or some curves and builds the setup for you, one each for cloth, hair, grain, softbody, balloon, fluid, and a stuffed-animal preset that keeps its overall shape. Cloth tears and stays bent. Soft bodies fill with tetrahedra to hold their volume, or hang on struts cast through a shell. Balloons hold their air. When you want the constraints in your own hands, PBDSimConstraints offers all 17 types. PBDSimSolverFrameRange bakes a whole run in one go, and PBDSimIO caches it to disk for smooth playback.
 
-The Physics nodes are a separate rigid-body engine. PhysicsWorld sets gravity and the timestep, in 2D or 3D. PhysicsBody covers dynamic, static, and kinematic bodies in the usual shapes, from boxes through convex hulls to trimeshes. PhysicsConstraint has the standard joints (fixed, hinge, slider, ball, spring, rope), each with a break threshold so it snaps under load. PhysicsMotor drives a joint, PhysicsGlueConstraint fractures bonded bodies and propagates the break to their neighbors, and PhysicsRaycast reports what it hit. PhysicsExtractTransforms hands every body's transform to an instancer, and PhysicsDebugRender draws the shapes and contacts as wireframe.
+The Physics nodes are a separate rigid-body engine. PhysicsWorld sets gravity and the timestep, in 2D or 3D. PhysicsBody covers moving, fixed, and animated bodies in the usual shapes, from boxes through convex hulls to full meshes. PhysicsConstraint has the standard joints (fixed, hinge, slider, ball, spring, rope), each with a break threshold so it snaps under load. PhysicsMotor drives a joint, PhysicsGlueConstraint holds pieces together until they crack apart and spreads the break to their neighbors, and PhysicsRaycast reports what it hit. PhysicsExtractTransforms hands every body's position to an instancer, and PhysicsDebugRender draws the shapes and contacts as wireframe.
 
-`XPBD` · `position-based dynamics` · `cloth simulation` · `soft body` · `tetrahedral` · `ARAP` · `hair simulation` · `grain` · `pressure constraint` · `shape matching` · `rigid body dynamics` · `joints` · `motor` · `fracture` · `glue constraint` · `raycast` · `continuous collision detection`
+`XPBD` · `position-based dynamics` · `cloth simulation` · `soft body` · `tetrahedral` · `hair simulation` · `grain` · `pressure constraint` · `shape matching` · `rigid body dynamics` · `joints` · `motor` · `fracture` · `glue constraint` · `raycast` · `continuous collision detection`
 
 <div align="center">
 
@@ -141,11 +155,11 @@ The Physics nodes are a separate rigid-body engine. PhysicsWorld sets gravity an
 
 </div>
 
-### Procedural terrain and generative geometry
+### Procedural terrain
 
-Terrain is heightfield-based: a 2D grid that is cheap to push around before it becomes a mesh. Erosion comes in eight flavors (hydraulic, thermal, wind, glacial, coastal, and more), stream-power incision pairs with tectonic uplift to carve mountains, and hydrology nodes write drainage, flow, and stream order as per-cell data. Terracing, masking by slope and height, domain-warp distortion, and Poisson-disk scatter handle the shaping and the prop placement.
+Terrain starts as a heightfield: a 2D grid that is cheap to push around before it becomes a mesh. Erosion comes in eight flavors (hydraulic, thermal, wind, glacial, coastal, rainfall, and two general-purpose passes), river carving pairs with tectonic uplift to raise mountains, and the hydrology nodes map drainage, flow, and stream order. Terracing, masks by slope and height, warping, and even-spaced scatter handle the shaping and the prop placement.
 
-Export goes straight to game engines: 16-bit height and weight maps in Unreal Landscape layout, Unity RAW16 plus splats, or chunked OBJ and FBX. One graph can feed Unreal and Unity at once.
+Export goes straight to game engines: a 16-bit heightmap with 8-bit layer weights in the Unreal Landscape layout, Unity RAW16 plus splat maps, or chunked OBJ and FBX. One graph can feed Unreal and Unity at once.
 
 `heightfield` · `terrain generation` · `hydraulic erosion` · `thermal erosion` · `glacial erosion` · `stream power` · `tectonic uplift` · `Strahler` · `terrace` · `domain warp` · `slope mask` · `Poisson disk` · `Unreal Landscape` · `Unity terrain` · `RAW16` · `splatmap`
 
@@ -157,27 +171,27 @@ Export goes straight to game engines: 16-bit height and weight maps in Unreal La
 
 ### Audio synthesis, analysis, and plugins
 
-The audio nodes carry the Audio prefix and cover synthesis, analysis, effects, and a plugin host. Synthesis runs oscillators, FM, wavetable, granular, Karplus-Strong, modal, and waveguide physical models. Analysis reports FFT, spectrum, BPM and onset detection, pitch, key and chord, and a BS.1770 LUFS meter. Filters and dynamics are the full set, from ladder and state-variable filters to compressors, limiters, and transient shapers.
+The audio nodes carry the Audio prefix and cover synthesis, analysis, effects, and a plugin host. Synthesis runs oscillators, FM, wavetable, granular, Karplus-Strong, and modal and waveguide physical models. Analysis reports FFT, spectrum, BPM and onsets, pitch, key and chord, and broadcast loudness (LUFS). Filters and dynamics are the full set, from ladder and state-variable filters to compressors, limiters, and transient shapers.
 
-Effects cover reverb (plate, spring, convolution), delays, chorus, phaser, distortion, pitch shift, time stretch, and a vocoder, plus first-order ambisonic encode and decode. PluginHost loads CLAP, VST3, and LV2 inline, optionally out of process so a plugin crash can't take the studio down, with the plugin's own GUI. Audio I/O runs through CoreAudio.
+Effects cover reverb (plate, spring, convolution), delays, chorus, phaser, distortion, pitch shift, time stretch, and a vocoder, plus ambisonic encode and decode for surround. PluginHost loads CLAP and VST3 plugins, plus LV2 on Linux, with the plugin's own window, and can run a plugin in its own process so a crash can't take the studio down. Audio goes in and out through your system's audio devices on every platform.
 
-`FM synthesis` · `wavetable` · `granular` · `Karplus-Strong` · `modal synthesis` · `waveguide` · `FFT` · `STFT` · `vocoder` · `convolution reverb` · `LUFS` · `BS.1770` · `pitch detection` · `beat tracking` · `ladder filter` · `parametric EQ` · `transient shaper` · `CLAP` · `VST3` · `LV2` · `CoreAudio`
+`FM synthesis` · `wavetable` · `granular` · `Karplus-Strong` · `modal synthesis` · `waveguide` · `FFT` · `STFT` · `vocoder` · `convolution reverb` · `LUFS` · `pitch detection` · `beat tracking` · `ladder filter` · `parametric EQ` · `transient shaper` · `ambisonics` · `CLAP` · `VST3` · `LV2`
 
 ![An audio DSP chain with synthesis, analysis, and effects](assets/adsp-graph.webp)
 
-### Channel Data multi-channel streams
+### Channel Data
 
-Channel Data is a named multi-channel stream. Its nodes do math, logic, smoothing, LFOs, patterns, and expressions, and converters bridge it to and from audio, MIDI, DMX, geometry, image, and JSON. So an FFT magnitude or a beat detector can drive DMX channels, MIDI notes, or geometry attributes without leaving the graph. OSC and file nodes move channels in and out.
+Channel Data is a bundle of named control signals moving through the graph. Its nodes do math, logic, smoothing, LFOs, patterns, and expressions, and converters bridge it to and from audio, MIDI, geometry, images, and JSON, and out to DMX. So an FFT band or a beat detector can drive DMX channels, MIDI notes, or geometry without leaving the graph. OSC and file nodes move channels in and out.
 
-`channel data` · `multi-channel stream` · `control signal` · `audio to MIDI` · `audio to DMX` · `OSC channels` · `signal conversion`
+`channel data` · `control signal` · `audio to MIDI` · `audio to DMX` · `OSC channels` · `signal conversion`
 
 ![A Channel Data graph driving parameters](assets/asyn-channel-data.webp)
 
 ### MIDI: routing, clock, sequencers, and network MIDI
 
-MIDI handles note, CC, pitch bend, pressure, RPN/NRPN, SysEx, and timecode, in and out. Routing covers merge, router, channel map, keyboard split, and thru. MPE decodes per-voice pitch, pressure, and timbre for the Roli Seaboard, LinnStrument, and Haken Continuum. Network MIDI runs over RTP-MIDI (AppleMIDI) and ipMIDI. Clock nodes divide, multiply, smooth, and tap tempo, and the sequencers cover a Euclidean generator, step and pattern sequencers, an arpeggiator, and piano-roll clip playback, all able to follow a shared project transport.
+MIDI handles notes, CC, pitch bend, pressure, RPN/NRPN, SysEx, and timecode, in and out. Routing covers merge, router, channel map, keyboard split, and thru. MPE reads per-note pitch, pressure, and timbre from the Roli Seaboard, LinnStrument, and Haken Continuum. Network MIDI runs over RTP-MIDI (AppleMIDI) and ipMIDI. Clock nodes divide, multiply, smooth, and tap tempo, and the sequencers cover Euclidean, step, and pattern sequencers, an arpeggiator, and piano-roll clip playback, all able to follow a shared project tempo.
 
-Soft takeover, MIDI learn with pickup and curve, and voice allocation with glide handle live control. A patch librarian stores, diffs, and steps a setlist saved in the project, alongside program change, snapshot fire, MIDI Tuning, and MIDI-CI and device-inquiry nodes. A device-profile library ships nine controllers plus General MIDI. Standard MIDI Files read and write, and bridges convert MIDI to channel data, gates, or monophonic audio-to-MIDI.
+Soft takeover, MIDI learn with pickup and curve, and voice allocation with glide handle live control. A patch librarian stores, compares, and steps through a setlist saved in the project, alongside program change, snapshot recall, MIDI Tuning, and MIDI-CI and device-inquiry nodes. The device-profile library comes with nine controllers plus General MIDI. Standard MIDI Files read and write, and converters turn MIDI into channel data or gates, or a monophonic audio line into MIDI notes.
 
 `MIDI` · `RTP-MIDI` · `AppleMIDI` · `ipMIDI` · `MPE` · `Roli Seaboard` · `LinnStrument` · `MIDI-CI` · `NRPN` · `SysEx` · `MIDI Show Control` · `MMC` · `Euclidean sequencer` · `arpeggiator` · `MIDI clock` · `MIDI Learn` · `soft takeover` · `voice allocation` · `patch librarian`
 
@@ -185,27 +199,27 @@ Soft takeover, MIDI learn with pickup and curve, and voice allocation with glide
 
 ### OSC and Ableton Live
 
-The OSC nodes send, receive, build, and unpack messages and bundles, with converters to and from floats, vec3s, and typed data. OSCRewrite remaps addresses, OSCRecorder captures a stream, and OSCQuery publishes and discovers namespaces both ways.
+The OSC nodes send, receive, build, and unpack messages and bundles, and convert them to and from numbers, vectors, and tables. OSCRewrite remaps addresses, OSCRecorder captures a stream, and OSCQuery both publishes your parameters and discovers other apps'.
 
-The Ableton nodes drive Live over AbletonOSC: tempo and beat from AbletonLiveLink, direct LOM get/set/subscribe from AbletonLiveControl, clip and scene launching, the clip matrix, device parameters, groove pool, and cue points. PushSurface reads an Ableton Push 2 or 3 over USB and writes pad colors back.
+The Ableton nodes drive Live through AbletonOSC: tempo and beat from AbletonLiveLink, reading, setting, and watching any Live property with AbletonLiveControl, clip and scene launching, the clip grid, device parameters, the groove pool, and cue points. PushSurface reads an Ableton Push 2 or 3 over USB and lights its pads.
 
-`OSC` · `Open Sound Control` · `OSCQuery` · `OSC bundle` · `address rewrite` · `Ableton Live` · `AbletonOSC` · `LOM` · `clip launch` · `groove pool` · `cue point` · `Ableton Push` · `Push 2` · `Push 3`
+`OSC` · `Open Sound Control` · `OSCQuery` · `OSC bundle` · `address rewrite` · `Ableton Live` · `AbletonOSC` · `clip launch` · `groove pool` · `cue point` · `Ableton Push` · `Push 2` · `Push 3`
 
 ![An OSC and Ableton Live control graph](assets/cosc-graph.webp)
 
 ### DMX lighting and show control
 
-DMX covers the full console workflow: patch, programmer, cuelists, palettes, groups, submasters, macros, and a command line. Output goes over Art-Net, sACN with per-address priority, or a serial Enttec adapter, and RDM handles discovery, addressing, and sensors, including tunneling over Art-Net. The fixture library has more than 1,600 profiles.
+DMX covers the full console workflow: patch, programmer, cuelists, palettes, groups, submasters, macros, and a command line. Output goes over Art-Net, sACN with per-address priority, or a USB Enttec interface. RDM finds fixtures, sets their addresses, and reads their sensors, and can reach them over RDMnet. The fixture library has more than 1,600 profiles.
 
-MVR scene files round-trip patch and 3D position with consoles and visualizers. Cuelists chase SMPTE LTC or Art-Net timecode, ImageToDmx pixel-maps onto fixture positions, and a scheduler fires on clock, sunrise, or sunset. Console-bridge clients target ETC Eos, grandMA3, and Hog 4, and camera tracking arrives over FreeD and PosiStageNet.
+MVR scene files carry the patch and fixture positions to and from consoles and visualizers. Cuelists chase SMPTE LTC or Art-Net timecode, ImageToDmx pixel-maps video onto fixture positions, and a scheduler fires cues by clock, sunrise, or sunset. Console bridges talk to ETC Eos, grandMA3, and Hog 4, and camera tracking comes in over FreeD and PosiStageNet.
 
-`DMX` · `Art-Net` · `ArtPoll` · `sACN` · `E1.31` · `per-address priority` · `RDM` · `RDM tunneling` · `MVR` · `FreeD` · `PosiStageNet` · `Enttec` · `LTC` · `SMPTE timecode` · `pixel mapping` · `cuelist` · `programmer` · `Eos` · `grandMA3` · `Hog 4`
+`DMX` · `Art-Net` · `ArtPoll` · `sACN` · `E1.31` · `per-address priority` · `RDM` · `RDMnet` · `MVR` · `FreeD` · `PosiStageNet` · `Enttec` · `LTC` · `SMPTE timecode` · `pixel mapping` · `cuelist` · `programmer` · `Eos` · `grandMA3` · `Hog 4`
 
 ![A DMX show-control graph with cuelist and programmer](assets/hdmx-graph.webp)
 
 ### Projection mapping and warping
 
-Projection mapping covers corner-pin, homography, and grid warp, plus a ProjectionMapper you paint shapes in. ProjectorLayout slices a canvas across two to eight projectors with overlap, and ImageEdgeBlend ramps the seams. Structured-light and radiometric calibration scan the surface and emit the UV maps and gain maps so a projected image reads evenly on an uneven, off-axis surface. Any source warps: a 3D render, a shader, or video.
+Projection mapping covers corner-pin, homography, and grid warp, plus a ProjectionMapper you draw shapes in. ProjectorLayout splits a canvas across a row or column of up to eight projectors, or a grid of up to 16, with overlap, and ImageEdgeBlend fades the seams. Structured-light and brightness calibration scan the surface and hand back the maps that make a projected image land evenly on an uneven, off-angle surface. Any source can be mapped: a 3D render, a shader, or video.
 
 `projection mapping` · `corner pin` · `homography` · `grid warp` · `ProjectionMapper` · `edge blend` · `structured light` · `radiometric calibration` · `gain map` · `multi-projector`
 
@@ -215,23 +229,23 @@ Projection mapping covers corner-pin, homography, and grid warp, plus a Projecti
 
 </div>
 
-### NDI, Syphon, and pro AV streaming
+### NDI, Syphon, and streaming
 
-Streaming splits into NDI send and receive with discovery, Syphon send and receive on macOS, and broadcast out. NDI carries a color-space tag and a quality preset. RTMP encodes H.264 and AAC for YouTube, Twitch, and Facebook; HLS writes MPEG-TS or fragmented MP4 with a rolling playlist; RTSP runs its own server and pulls streams in. Encoding uses Apple VideoToolbox, and the nodes fail loud if it is unavailable rather than sending undecodable video.
+Streaming covers NDI send and receive with source discovery, Syphon send and receive on macOS, and going out live. NDI carries a color-space tag and a quality preset. RTMP sends H.264 and AAC to YouTube, Twitch, and Facebook; HLS writes a rolling playlist; RTSP runs its own server and pulls streams in. Video encodes on your machine's hardware encoder (Apple VideoToolbox on a Mac, NVIDIA, Intel, or AMD on Windows and Linux), and the node tells you plainly if there isn't one rather than sending video nobody can play.
 
-A shared tally bus tracks program and preview per source, mirrored from a Blackmagic ATEM or vMix. PTZ control drives pan, tilt, and zoom over NDI, VISCA-IP, or ONVIF, and an Elgato Stream Deck (or a MIDI controller standing in as one) maps buttons to graph actions with LED tally. HTTP, WebSocket, webhook, and serial nodes round out the live I/O.
+A shared tally tracks program and preview per source, mirrored from a Blackmagic ATEM or vMix. PTZ control drives pan, tilt, and zoom over NDI, VISCA-IP, or ONVIF, and an Elgato Stream Deck (or a MIDI controller standing in for one) maps buttons to graph actions with tally lights. HTTP, WebSocket, webhook, and serial nodes round out the live I/O, and the serial windows talk to an Arduino or Pico and show every byte.
 
-`NDI` · `Syphon` · `RTMP` · `RTSP` · `HLS` · `MPEG-TS` · `fragmented MP4` · `H.264` · `AAC` · `VideoToolbox` · `adaptive bitrate` · `ATEM` · `vMix` · `Stream Deck` · `VISCA-IP` · `ONVIF` · `tally`
+`NDI` · `Syphon` · `RTMP` · `RTSP` · `HLS` · `MPEG-TS` · `fragmented MP4` · `H.264` · `AAC` · `VideoToolbox` · `NVENC` · `adaptive bitrate` · `ATEM` · `vMix` · `Stream Deck` · `VISCA-IP` · `ONVIF` · `tally` · `serial` · `Arduino`
 
 ![An NDI send and receive streaming graph](assets/sndi-graph.webp)
 
 ### Camera, depth, tracking, and vision
 
-Blob tracking detects and tracks with stable IDs across frames, four detection modes, occlusion recovery, and zone enter/exit/dwell events. ImageOpticalFlow computes per-pixel motion to drive motion blur and warps, and there are corner, contour, connected-component, and template-match nodes alongside.
+Blob tracking finds and follows shapes with IDs that stay put from frame to frame, four detection modes, recovery when a blob is hidden for a moment, and zone enter, exit, and dwell events. ImageOpticalFlow measures motion at every pixel to drive motion blur and warps, and there are corner, contour, connected-region, and template-match nodes alongside.
 
-Depth, pose, hand, face, and segmentation models run locally on the machine (Metal, CUDA, or CPU), not over a network. Depth Anything turns a single image into a depth map and then geometry; pose finds 17 body keypoints, hands find 21 landmarks, faces find 68; and Segment Anything cuts objects out by prompt, grid, or click. Each emits a typed table per detection, so results feed particles, lights, and parameter mappings. Webcam, video files, and screen or window capture are the input sources.
+Depth, pose, hand, face, and segmentation models run on your own machine (Metal, CUDA, or CPU), not over the internet, with no account or API key. Depth Anything turns a single image into a depth map and then geometry; pose finds 17 body points, hands find 21, faces find 68; and Segment Anything cuts objects out by prompt, grid, or click. Each result comes out as a table per detection, so it feeds particles, lights, and parameter mappings directly. Webcams, video files, and screen or window capture are the inputs, and OutputVideoFile records any picture in the graph to a video file.
 
-`computer vision` · `blob tracking` · `track ID` · `MOG2` · `optical flow` · `Lucas-Kanade` · `connected components` · `Harris corner` · `template matching` · `depth estimation` · `Depth Anything` · `point cloud` · `pose estimation` · `YOLOv8` · `hand tracking` · `BlazePalm` · `face landmarks` · `Segment Anything` · `webcam` · `screen capture`
+`computer vision` · `blob tracking` · `track ID` · `MOG2` · `optical flow` · `Lucas-Kanade` · `connected components` · `Harris corner` · `template matching` · `depth estimation` · `Depth Anything` · `point cloud` · `pose estimation` · `RTMPose` · `hand tracking` · `BlazePalm` · `face landmarks` · `Segment Anything` · `webcam` · `screen capture`
 
 <div align="center">
 
@@ -239,13 +253,19 @@ Depth, pose, hand, face, and segmentation models run locally on the machine (Met
 
 </div>
 
+### On-device AI for images, 3D, and speech
+
+The LocalAI nodes run on your own machine too. The image nodes upscale, cut out backgrounds, brighten dark footage, restore old or damaged photos, and erase a person or object from a picture. The 3D nodes turn a photo into textured 3D objects or a whole composed scene, a single object into a splat, and a person into a full-body mesh; LocalAICameraSolve works out the camera move from a video. LocalAIAudioTranscribe turns speech into text for captions or voice cues, and LocalAITextToSpeechAudio speaks text aloud. Most models download the first time you use them; a few small ones come with the app.
+
+`on-device AI` · `local AI` · `image upscale` · `background removal` · `photo restoration` · `object removal` · `image to 3D` · `photo to mesh` · `camera solve` · `speech to text` · `Whisper` · `text to speech`
+
 ### Scripting: Python and JavaScript
 
-The studio embeds CPython, bundled, so there is nothing to install on the target machine. Four node types run Python in the graph: a full script class with typed ports, a one-expression node, a generator, and a callback. Each keeps its ports and config and swaps back in cleanly after a syntax error.
+The studio comes with its own Python, so there is nothing to install on the show machine. Four node types run Python in the graph: a full script with its own ports, a one-line expression, a generator, and a callback. Each keeps its ports and settings through a typo, and picks up again as soon as the script runs.
 
-A multi-tab editor has highlighting, completion against the ogex module, and a real debugger with breakpoints, stepping, and watches across every Python node at once. A docked console is a REPL against the live graph, and a Packages window front-ends pip on a bundled virtualenv. The ogex module spans submodules from ogex.audio and ogex.midi to ogex.geo, ogex.shader, and ogex.ui, with an in-app API reference. JavaScript also runs, sandboxed, through the pure-Rust boa engine.
+A tabbed editor has highlighting, completion for the ogex module, and a debugger with breakpoints, stepping, and watches across every Python node at once. A docked console talks to the live graph, and a Packages window installs pip packages into a bundled environment. The ogex module reaches every part of the app, from ogex.audio and ogex.midi to ogex.geo, ogex.shader, and ogex.ui, with an API reference built in. JavaScript also runs, in a sandbox.
 
-`Python` · `PythonScriptNode` · `embedded interpreter` · `CPython` · `REPL` · `debugger` · `breakpoint` · `watch expression` · `code completion` · `headless rendering` · `JavaScript` · `boa_engine` · `sandboxed scripting`
+`Python` · `PythonScriptNode` · `embedded Python` · `REPL` · `debugger` · `breakpoint` · `watch expression` · `code completion` · `headless rendering` · `JavaScript` · `sandboxed scripting`
 
 <div align="center">
 
@@ -255,7 +275,7 @@ A multi-tab editor has highlighting, completion against the ogex module, and a r
 
 ### Control surfaces and UI widgets
 
-The UI nodes are on-canvas control widgets and displays: sliders, dials, XY pads, a joystick, toggles, an onscreen keyboard, plus gauges, meters, a spectrum analyzer, and scope displays. Editor widgets live-edit structured data and save it in the graph: a Bezier curve editor, an ADSR envelope, gradient and color pickers, a step sequencer, a filter designer, a spectrum you paint and inverse-FFT to audio, and a PBR material editor. Widgets group into popout panels and bind to MIDI or OSC with Learn.
+The UI nodes are on-canvas controls and displays: sliders, dials, XY pads, a joystick, toggles, an onscreen keyboard, plus gauges, meters, a spectrum analyzer, and scopes. Editor widgets let you shape data by hand and save it in the graph: a Bezier curve editor, an ADSR envelope, gradient and color pickers, a step sequencer, a filter designer, a spectrum you paint and hear, and a PBR material editor. Widgets group into popout panels and bind to MIDI or OSC with Learn.
 
 `UI widget` · `control surface` · `slider` · `dial` · `XY pad` · `joystick` · `color picker` · `gauge` · `level meter` · `spectrum analyzer` · `curve editor` · `ADSR envelope` · `step sequencer` · `Stream Deck` · `parameter mapping`
 
@@ -269,57 +289,67 @@ The UI nodes are on-canvas control widgets and displays: sliders, dials, XY pads
 
 ### Canvas, palette, and wiring
 
-The canvas has type-colored nodes, port pins, and wires drawn in the color of the data passing through them. Space or double-click opens quick-add, filtered as you type. Drag from a pin and compatible inputs highlight; drop on a node and it auto-routes, drop on empty canvas and you get a menu of nodes that fit. There is a three-pane palette, box-select, the usual align, distribute, and snap actions, a minimap, and numbered viewport bookmarks.
+The canvas has color-coded nodes and pins, and wires drawn in the color of the data passing through them. Space opens quick-add, filtered as you type. Drag from a pin and the inputs that fit light up; drop on a node and it connects, drop on empty canvas and you get a menu of nodes that take that data. There is a three-pane palette, box-select, align, distribute, and snap, a minimap, and numbered view bookmarks.
 
 ![The node canvas with palette and wiring](assets/what-canvas.webp)
 
+### The viewport
+
+Above the canvas sits the main viewport. It shows whatever the selected or pinned node puts out: an image, a 3D scene with gizmos, a volume, a DMX grid, MIDI, a vector drawing, or a table. A node with no picture of its own gets a node view showing what it is reading, writing, and doing, so there is always something to look at. Rig skeletons and skin weights are edited and painted right in the viewport.
+
+### Perform Mode
+
+Press F1 and the editor disappears: menus, panels, and canvas go, and the window shows your show output alone, on the monitor you pick. The Outputs window lays out the perform window, projector windows, and surfaces across your displays, and Identify shows which monitor is which. Esc brings back the editor exactly as you left it.
+
 ### Inspector, drivers, and undo
 
-The Properties panel edits a node's config with the right widget per type, min/max/step enforcement, conditional fields, and validation badges. The Inspector adds Watches that pin a node, port, or wire and show live values and execution stats.
+The Properties panel edits a node's settings with the right control for each one, keeps values in range, hides settings that don't apply, and badges anything that needs fixing. The Inspector adds Watches that pin a node, port, or wire and show live values and timing.
 
-Any parameter can be driven by an expression that re-evaluates every tick: a Fast compiled driver (about a microsecond, stored with a leading `#`) with time, frame, sin, clamp, lerp, channel, and osc, or a Python driver (`@`). The editor previews the curve at t=0, 0.5, and 1.0, and a driven field shows its live value in amber. Every change emits a record, so canvas edits and Python mutations both undo with Cmd+Z; a search panel and a Cmd+Shift+P command palette round it out.
+Any setting can be driven by an expression that runs every frame: a fast driver (stored with a leading `#`) using time, frame, sin, clamp, lerp, channel, and osc, or a Python driver (`@`). The editor previews the curve at t=0, 0.5, and 1.0, and a driven setting shows its expression in amber and its live value beside it. Canvas edits and Python changes all undo with Cmd+Z (Ctrl+Z on Windows and Linux), and Cmd+Shift+P opens a command palette.
 
 ![The inspector with a driven parameter](assets/cparam-inspector.webp)
 
 ### Components and the .ogex file
 
-A Component wraps a subgraph as one node with its own ports. Double-click to step inside, breadcrumb back out, and bridge nodes define the port surface across every type from Tick to Geometry and Scene. The Public Property Editor picks which parameters the Component exposes.
+A Component wraps a subgraph as one node with its own ports. Double-click to step inside, use the breadcrumb to step back out, and pick which settings the Component shows on the outside with the Public Property Editor.
 
-Graphs save as plain JSON in the .ogex format: one array of nodes and links, human-readable and git-diffable. Studio writes a sibling `_editor` block for positions, colors, and groups that the engine ignores and round-trips, so logic and layout stay decoupled. Optional `network` and `transport` blocks carry streaming NIC roles and project tempo with the file.
+Graphs save as plain JSON in the .ogex format, readable and diffable in git. Node positions, colors, and groups sit in their own `_editor` block, apart from the logic. A file can also carry the project tempo and the network settings for streaming.
 
 ### Editor windows
 
-OGEX opens dedicated editor windows on specific nodes. Each reads its node live and writes every edit back through the normal path, so changes from Python, OSC, or hardware show up without a refresh, travel in the .ogex, and undo. Nothing saves on close.
+OGEX opens dedicated editor windows for specific nodes. Each one reads its node live and writes every edit back to it, so changes from Python, OSC, or hardware show up straight away, save in the .ogex, and undo.
 
-- **DMX console.** Eleven windows for the lighting workflow: Patch Table, Cuelist, Programmer, Master Live, Palette and Submaster pools, Magic Sheet with PNG export, Surface Layout, Personality Editor, Pixel Matrix, and RDM Discovery.
-- **MIDI.** A Piano Roll with velocity and CC lanes and recording, plus Clips, Transport, Devices, Monitor, Routing Matrix, Profile Library and editor, Controller Surface, Patch Librarian, SysEx editor, Song/Setlist, and Push Surface.
-- **OSC and Ableton.** An OSC Monitor, Namespace and OSCQuery browsers, Mappings, and Learn; plus an Ableton Live Companion mirroring Live's session view, with Scenes, Cue Points, Sends, and a Device inspector on one connection.
-- **Streaming.** A Sources window of live thumbnails you drag onto the canvas as a wired receive chain, a Tally Master, a PTZ Controller, a Stream Deck Layout, Network Settings, and a Network Status window with per-NIC and per-stream tables and a PTP block.
-- **Visual editors.** A shader editor with auto-compile, completion, and inline error squiggles mapped to your source; a Compositor; the Projection Mapper; a keyframe editor; and a video timeline with V/A clips, transitions, render to file, and EDL and SRT export.
-- **Inspectors.** An orbit viewport for geometry, scenes, and materials with a scene tree and attribute spreadsheet; a material preview under several HDRIs; an SDF and volume ray-marcher; and a heightfield sampler.
+- **DMX console.** About two dozen windows for the lighting workflow, including Patch Table, Groups, Personality Editor, Gel Picker, Master Live, Cuelist, Programmer, Submasters, Palette pools, Pixel Matrix, Magic Sheet with PNG export, Surface Layout, a 3D viewer, RDM Discovery, network topology, packet capture, pre-show and channel checks, test patterns, the scheduler, macros, and a show diary.
+- **MIDI.** A Piano Roll with velocity and CC lanes and recording, plus Clips, Transport, Devices, Monitor and Learn, Routing Matrix, Profile Library and editor, Controller Surface, Patch Librarian, SysEx editor, and Song/Setlist.
+- **OSC and Ableton.** An OSC Monitor, Namespace and OSCQuery browsers, Mappings, and Learn; plus an Ableton Live Companion that mirrors Live's session view, with Scenes, Cue Points, Sends, a Device inspector, and Push Surface.
+- **Streaming and mocap.** A Sources window of live thumbnails you drag onto the canvas to get a wired-up receiver, a Tally Master, a PTZ Controller, a Stream Deck Layout, Network Settings and Status, and the Mocap window for performers, calibration, and takes.
+- **Visual editors.** A shader editor that compiles as you type, with completion and errors underlined in your code; a Compositor; the Projection Mapper; a keyframe editor; and a video timeline with video and audio clips, transitions, render to file, and EDL and SRT export.
+- **Inspectors.** An orbit viewport for geometry, scenes, and materials with a scene tree and attribute spreadsheet; a material preview under several HDRIs; a volume and SDF viewer; and a heightfield sampler.
+- **Serial.** Devices and a Monitor for microcontrollers.
 
 ![The video timeline editor window](assets/hcam-video-timeline.webp)
 
 ### Diagnostics and preferences
 
-A Diagnostics panel collects lint and validation results with Console, Change Log, and Statistics tabs. A Profiler shows per-node executor cost with CSV export, and a System Monitor sparklines CPU, RAM, and GPU. Preferences cover devices, models, and Python. Four Catppuccin themes are built in, with a colorblind-safe mode and a night mode for dark venues. The top bar holds transport (Run, Pause, Stop, Step), a tick-rate readout, and a compute-device chip.
+A Diagnostics panel collects warnings and errors, with Console, Change Log, Statistics, and Trace Log tabs. A Profiler shows what each node costs per frame, with CSV export, and a System Monitor graphs CPU, RAM, and GPU. Preferences cover appearance, viewport, layout, devices, models, Python, and shortcuts. Four Catppuccin themes are built in, with a colorblind-safe mode and a night mode for dark venues. The top bar holds Run, Pause, Stop, and Step, the status bar counts ticks, and each node's header shows whether it ran on the GPU or the CPU.
 
 ## What you can build
 
 - Live concert and club visuals that follow the music over MIDI, OSC, or Ableton Live.
 - Museum and gallery installations driven by cameras, depth sensors, and hand tracking.
 - Projection-mapped stage sets, domes, and sculptures.
-- DMX lighting rigs and LED walls. The console windows, fixture library, and timecode chase run in the same graph as the visuals.
-- Generative art and motion pieces from shaders, particles, geometry, and terrain.
-- Broadcast and streaming pipelines with NDI, Syphon, RTMP, and tally.
+- DMX lighting rigs and LED walls, with the console windows, fixture library, and timecode chase in the same graph as the visuals.
+- Characters driven live by a mocap suit or a phone.
+- Generative art and motion pieces from shaders, particles, splats, fluids, geometry, and terrain.
+- Broadcast and streaming setups with NDI, Syphon, RTMP, and tally.
 
-## Requirements and status
+## Requirements
 
 - **macOS.** macOS 12.3 (Monterey) or later, Apple Silicon (M-series). Signed with a Developer ID and notarized by Apple.
-- **Windows.** 64-bit Windows 10 version 1809 or later, and Windows 11.
+- **Windows.** 64-bit Windows 10 version 1809 or later, and Windows 11. Code signed.
 - **Linux.** Ubuntu 24.04 LTS or newer, on glibc 2.39 or newer. X11 and Wayland both work.
-- **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi graphics driver does not support the GPU fluid simulation or float blended rendering, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
-- Graphs are JSON and run in OGEX, or through the Python library.
+- **Raspberry Pi.** Pi 5 on 64-bit Raspberry Pi OS. The Pi's graphics chip can't run the GPU fluid simulation or blend 32-bit float renders, and those nodes say so rather than quietly giving you the wrong picture. Everything else runs.
+- Graphs are JSON files, and can also run with no window using `ogex-studio --headless`.
 
 Every platform is on 0.4.6.
 
@@ -331,4 +361,4 @@ Every platform is on 0.4.6.
 
 ---
 
-<sub>Keywords: node-based visual programming, dataflow, creative coding, live visuals, VJ software, generative art, TouchDesigner alternative, Max/MSP, vvvv, Notch, live graphics node editor, GPU particles, WGSL, GLSL, Shadertoy, shader live coding, PBR rendering, XPBD cloth simulation, soft body physics, rigid body dynamics, SDF, NURBS, procedural geometry, terrain generation, DMX, Art-Net, sACN, lighting control, projection mapping, NDI, Syphon, RTMP, OSC, Ableton Live, MIDI router, RTP-MIDI, MPE, sequencer, computer vision, face tracking, hand tracking, depth camera, interactive installation, macOS, Apple Silicon, Windows, Linux, Ubuntu, Raspberry Pi, arm64.</sub>
+<sub>Keywords: node-based visual programming, dataflow, creative coding, live visuals, VJ software, generative art, TouchDesigner alternative, Max/MSP, vvvv, Notch, live graphics node editor, GPU particles, Gaussian splatting, fluid simulation, smoke and fire, FLIP liquids, WGSL, GLSL, Shadertoy, shader live coding, PBR rendering, OpenColorIO, XPBD cloth simulation, soft body physics, rigid body dynamics, rigging, character animation, motion capture, SDF, NURBS, procedural geometry, terrain generation, DMX, Art-Net, sACN, lighting control, projection mapping, NDI, Syphon, RTMP, OSC, Ableton Live, MIDI router, RTP-MIDI, MPE, sequencer, computer vision, on-device AI, face tracking, hand tracking, depth camera, interactive installation, macOS, Apple Silicon, Windows, Linux, Ubuntu, Raspberry Pi, arm64.</sub>
